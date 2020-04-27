@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/001-p2p-parent/001-p2p-parent.iml" filepath="$PROJECT_DIR$/001-p2p-parent/001-p2p-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/002-p2p-common/002-p2p-common.iml" filepath="$PROJECT_DIR$/002-p2p-common/002-p2p-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/003-p2p-exterface/003-p2p-exterface.iml" filepath="$PROJECT_DIR$/003-p2p-exterface/003-p2p-exterface.iml" />
+      <module fileurl="file://$PROJECT_DIR$/004-p2p-dataservice/004-p2p-dataservice.iml" filepath="$PROJECT_DIR$/004-p2p-dataservice/004-p2p-dataservice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/005-p2p-web/005-p2p-web.iml" filepath="$PROJECT_DIR$/005-p2p-web/005-p2p-web.iml" />
+    </modules>
+  </component>
+</project>

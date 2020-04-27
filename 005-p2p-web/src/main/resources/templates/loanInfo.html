@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>动力金融网-CFCA认证的互联网金融公司</title>
+    <script type="text/javascript" th:src="@{/js/jquery-1.7.2.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trafficStatistics.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/share.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}"/>
+
+</head>
+
+<body>
+<div id="header">
+    <!--<jsp:include page="commons/header.jsp"/>-->
+    <div th:include="commons/header :: html"></div>
+</div>
+
+<!--散标投资 begin-->
+<div id="sbtz" class="invest-details">
+
+    <!--页中begin-->
+    <div class="mainBox pro-details-body">
+        <div class="homeWap clearfix" id="huacengPar">
+            <div class="pro-details-left">
+
+                <!-- 产品详情start -->
+                <div class="pro-info-details">
+                    <div class="pro-name">
+                        <h2><span th:text="|${loanInfo.productName} (${loanInfo.productNo}期)|">季度宝 (20170726期)</span></h2>
+                    </div>
+                    <div class="pro-info">
+                        <ul class="clearfix">
+                            <li class="info-1">
+                                <p>历史年化利率</p>
+                                <h3 th:text="|${loanInfo.rate}%|">4.9%</h3>
+                                <div class="info-bt">
+                                    <span>本产品采用普通利率</span>
+                                </div>
+                            </li>
+                            <li class="info-2">
+                                <p>募集金额(元)</p>
+                                <h3 th:text="${loanInfo.productMoney}">500000.0</h3>
+                                <div class="info-bt">
+                                <span th:if="${loanInfo.leftProductMoney ne 0}" th:text="|募集中,剩余募集金额 ${loanInfo.leftProductMoney}元|">
+                                    募集中,剩余募集金额 500000.0元
+                                </span>
+                                <span th:if="${loanInfo.leftProductMoney eq 0}">已满标</span>
+                                </div>
+                            </li>
+                            <li class="info-3">
+                                <p>投资周期</p>
+                                <span th:switch="${loanInfo.productType}">
+                                    <span th:case="0">
+                                        <h3 th:text="|${loanInfo.cycle}天|">6天</h3>
+                                    </span>
+                                    <span th:case="*">
+                                        <h3 th:text="|${loanInfo.cycle}个月|">6个月</h3>
+                                    </span>
+                                </span>
+                                <div class="info-bt"><span></span></div>
+                            </li>
+                        </ul>
+                    </div>
+                    <dl class="pro-syfs">
+                        <dt><span>收益获取方式</span></dt>
+                        <dd><span>收益返还：</span>到期还本付息</dd>
+                    </dl>
+                </div>
+                <!-- 产品详情end -->
+
+                <!-- 投资记录start -->
+                <div class="pro-details-cnt">
+                    <ul class="tabNav clearfix">
+                        <li><a id="one3" href="javascript:void(0);" class="s">投资记录</a></li>
+                    </ul>
+
+                    <div class="invest-record" id="con_one_3" style="display:block">
+                        <div class="vertical-side">投资列表</div>
+                        <dl class="record-list">
+                            <dt>
+                                <span class="record-num">序号</span>
+                                <span class="invest-user">投资人</span>
+                                <span class="invest-money">投资金额(元)</span>
+                                <span class="invest-time">投资时间</span>
+                            </dt>
+                            <div th:if="${#lists.isEmpty(bidInfoList)}">
+                                <dd style="text-align:center;">该产品暂时还没有人投资，赶快去投资吧~</dd>
+                            </div>
+
+                            <div th:if="${!#lists.isEmpty(bidInfoList)}">
+                                <div th:each="bidInfo:${bidInfoList}">
+                                    <dd>
+                                        <span class="record-num" th:text="${bidInfoStat.count}">1</span>
+                                        <span class="invest-user" th:text="|${#strings.substring(bidInfo.user.phone,0,3)}******${#strings.substring(bidInfo.user.phone,9,11)}|">137******89</span>
+                                        <span class="invest-money" th:text="${bidInfo.bidMoney}">1000.0</span>
+                                        <span class="invest-time" th:text="${#dates.format(bidInfo.bidTime,'yyyy-MM-dd HH:mm:ss')}">2017-09-12 13:34:22</span>
+                                    </dd>
+                                </div>
+                            </div>
+
+                        </dl>
+                    </div>
+                </div>
+                <!-- 投资记录end -->
+            </div>
+
+            <!--页面右侧begin-->
+            <div class="pro-details-right">
+                <div class="right-calculator" id="huaceng">
+                    <div class="calculator-cnt">
+                        <h2>立即投资</h2>
+                        <dl class="profits-mode">
+                            <dt>收益获取方式</dt>
+                            <dd class="clearfix"><span id="fanhuan"><em>到期还本付息</em></span></dd>
+                        </dl>
+                        <dl class="usable">
+                            <dt>我的账户可用</dt>
+                            <dd>资金(元)：
+
+                                <!-- 判断用户是否登录：未登录，显示登录连接 -->
+                                <span style="font-size:18px;color:#ff6161;vertical-align:bottom;"><a
+                                        th:href="@{/loan/page/login}">请登录</a></span>
+
+                                <!-- 判断用户是否登录：已登录，显示可用余额 -->
+                                <!--<span style="font-size:18px;color:#ff6161;vertical-align:bottom;">1,000,12 元</span>-->
+
+                            </dd>
+                        </dl>
+                        <div class="expect-box">
+                            <div class="expect-money">预计本息收入(元)：<span id="shouyi" class="money"></span><span
+                                    class="prompt" style="display:block;">请在下方输入投资金额</span></div>
+                            <input type="text" id="bidMoney" name="bidMoney" onblur="checkMoney();"
+                                   placeholder="请输入投资金额，应为100元的整倍数" maxlength="9"/>
+                            <div class="max-invest-money"></div>
+                        </div>
+                        <div class="invest-btn">
+                            <a id="investNow" href="javascript:void(0)" class="btn-1" onclick="invest();">立即投资</a>
+                        </div>
+                        <input type="hidden" id="loanId" name="loanId" value="${loanInfo.id}"/>
+                    </div>
+                </div>
+            </div>
+            <!--页面右侧end-->
+        </div>
+    </div>
+    <!--页中end-->
+
+</div>
+<!--散标投资 end-->
+
+<!--遮罩层-->
+<div class="dialog-overlay" id="dialog-overlay1" style="display:none;"></div>
+
+<!--投资成功浮层start-->
+<div class="layer-body failureSuccess failurePayment" id="failurePayment"
+     style="display:none;width:500px;height:100px;top:75%;">
+    <a class="layer-close" href="javascript:closeit();"></a>
+    <div style="background:#f2f2f2; line-height:105px;text-align:center;"><font style="font-size:25px;">投资成功</font>
+    </div>
+</div>
+<!--投资成功浮层end-->
+
+<!--页脚start-->
+<!--<jsp:include page="commons/footer.jsp"/>-->
+<div th:include="commons/footer :: html"></div>
+<!--页脚end-->
+
+<script type="text/javascript">
+    function closeit() {
+        $("#failurePayment").hide();
+        $("#dialog-overlay1").hide();
+        window.location.href = "${pageContext.request.contextPath}/loan/myCenter";
+    }
+</script>
+</body>
+</html>

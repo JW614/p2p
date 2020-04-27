@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" native2AsciiForPropertiesFiles="true" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/001-p2p-parent" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/002-p2p-common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/002-p2p-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/003-p2p-exterface" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/003-p2p-exterface/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/004-p2p-dataservice" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/004-p2p-dataservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/005-p2p-web" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/005-p2p-web/src/main/java" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>
