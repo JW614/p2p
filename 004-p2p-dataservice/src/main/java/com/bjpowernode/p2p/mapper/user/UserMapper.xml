@@ -32,7 +32,20 @@
       #{name,jdbcType=VARCHAR}, #{idCard,jdbcType=VARCHAR}, #{addTime,jdbcType=TIMESTAMP}, 
       #{lastLoginTime,jdbcType=TIMESTAMP}, #{headerImage,jdbcType=VARCHAR})
   </insert>
+
+    <!--
+        selectKey 查询主键值的标识
+        keyProperty 输入参数中接收主键值的属性名称
+        resultType 主键数据类型
+        order AFTER生成记录之后再赋值
+    -->
     <insert id="insertSelective" parameterType="com.bjpowernode.p2p.model.user.User">
+
+
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            select @@IDENTITY as id
+        </selectKey>
+
         insert into u_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -129,6 +142,16 @@
     <!--获取平台注册总人数-->
     <select id="selectAllUserCount" resultType="java.lang.Long">
         select count(*) from u_user
+    </select>
+
+    <!--根据手机号码查询用户信息-->
+    <select id="selectUserByPhone" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List"/>
+        from
+          u_user
+        where
+          phone = #{phone}
     </select>
 
 </mapper>

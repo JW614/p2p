@@ -1,5 +1,7 @@
 package com.bjpowernode.p2p.service.user;
 
+import com.bjpowernode.p2p.model.user.User;
+
 /**
  * ClassName:UserService
  * Package:com.bjpowernode.p2p.service.user
@@ -15,4 +17,26 @@ public interface UserService {
      * @return
      */
     Long queryAllUserCount();
+
+    /**
+     * 根据手机号码查询用户信息
+     * @param phone
+     * @return
+     */
+    User queryUserByPhone(String phone);
+
+    /**
+     * 用户注册
+     * @param phone
+     * @param loginPassword
+     * @return
+     */
+    User register(String phone, String loginPassword) throws Exception;
+
+    /**
+     * 根据用户标识更新用户信息
+     * @param user
+     * @return
+     */
+    int modifyUserById(User user);
 }

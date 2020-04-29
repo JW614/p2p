@@ -20,4 +20,11 @@ public interface UserMapper {
      * @return
      */
     Long selectAllUserCount();
+
+    /**
+     * 根据手机号码查询用户信息
+     * @param phone
+     * @return
+     */
+    User selectUserByPhone(String phone);
 }
