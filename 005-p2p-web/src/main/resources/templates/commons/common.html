@@ -7,6 +7,17 @@
 <body>
 <script type="text/javascript" th:inline="javascript">
     var contextPath = [[${#httpServletRequest.getContextPath()}]];
+
+    $(function () {
+        var requestUrl =  $("#localPageUrl").val();
+
+        $(".btn-login").on("click",function () {
+            var localPageUrl = $("#localPageUrl").val();
+            window.location.href = contextPath + "/loan/page/login?redirectUrl="+localPageUrl;
+        });
+    });
+
 </script>
+<input type="hidden" id="localPageUrl" th:value="${#strings.replace(#httpServletRequest.requestURL+'?'+#httpServletRequest.queryString,'?null','')}"/>
 </body>
 </html>

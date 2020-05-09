@@ -1,10 +1,15 @@
 package com.bjpowernode.p2p.web;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.bjpowernode.p2p.common.constant.Constants;
 import com.bjpowernode.p2p.model.loan.LoanInfo;
+import com.bjpowernode.p2p.model.user.FinanceAccount;
+import com.bjpowernode.p2p.model.user.User;
 import com.bjpowernode.p2p.model.vo.BidExtUser;
+import com.bjpowernode.p2p.model.vo.BidUserTopVO;
 import com.bjpowernode.p2p.model.vo.PaginationVO;
 import com.bjpowernode.p2p.service.loan.BidInfoService;
+import com.bjpowernode.p2p.service.loan.FinanceAccountService;
 import com.bjpowernode.p2p.service.loan.LoanInfoService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Controller;
@@ -33,6 +38,9 @@ public class LoanInfoController {
 
     @Reference(interfaceClass = BidInfoService.class,version = "1.0.0",check = false)
     private BidInfoService bidInfoService;
+
+    @Reference(interfaceClass = FinanceAccountService.class,version = "1.0.0",check = false)
+    private FinanceAccountService financeAccountService;
 
     @GetMapping(value = "/loan/loan")
     public String loan(HttpServletRequest request, Model model,
@@ -70,9 +78,10 @@ public class LoanInfoController {
             model.addAttribute("ptype",ptype);
         }
 
-
-        //TODO
         //用户投资排行榜
+        List<BidUserTopVO> bidUserTopVOList = bidInfoService.queryBidUserTop();
+        model.addAttribute("bidUserList",bidUserTopVOList);
+
 
         return "loan";
     }
@@ -96,8 +105,18 @@ public class LoanInfoController {
         List<BidExtUser> bidInfoList = bidInfoService.queryRecentlyBidInfoListByLoanId(paramMap);
         model.addAttribute("bidInfoList",bidInfoList);
 
-        //TODO
-        //根据用户标识获取帐户信息
+        //从session中获取用户的信息
+        User sessionUser = (User) request.getSession().getAttribute(Constants.SESSION_USER);
+
+        //判断用户是否为空
+        if (ObjectUtils.allNotNull(sessionUser)) {
+
+            //根据用户标识获取帐户信息
+            FinanceAccount financeAccount = financeAccountService.queryFinanceAccountByUid(sessionUser.getId());
+            model.addAttribute("financeAccount",financeAccount);
+        }
+
+
 
         return "loanInfo";
     }

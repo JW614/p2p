@@ -1,6 +1,8 @@
 package com.bjpowernode.p2p.service.loan;
 
 import com.bjpowernode.p2p.model.vo.BidExtUser;
+import com.bjpowernode.p2p.model.vo.BidLoanVO;
+import com.bjpowernode.p2p.model.vo.BidUserTopVO;
 
 import java.util.List;
 import java.util.Map;
@@ -27,4 +29,23 @@ public interface BidInfoService {
      * @return
      */
     List<BidExtUser> queryRecentlyBidInfoListByLoanId(Map<String, Object> paramMap);
+
+    /**
+     * 根据用户标识获取最近投资记录(包含：产品信息)
+     * @param paramMap
+     * @return
+     */
+    List<BidLoanVO> queryRecentlyBidInfoListByUid(Map<String, Object> paramMap);
+
+    /**
+     * 用户投资
+     * @param paramMap
+     */
+    void invest(Map<String, Object> paramMap) throws Exception;
+
+    /**
+     * 获取用户投资排行榜
+     * @return
+     */
+    List<BidUserTopVO> queryBidUserTop();
 }

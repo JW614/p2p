@@ -147,4 +147,33 @@
         limit #{currentPage},#{pageSize}
     </select>
 
+    <!--根据用户标识获取最近投资记录(包含：产品信息)-->
+    <select id="selectRecentlyBidInfoListByUid" resultType="com.bjpowernode.p2p.model.vo.BidLoanVO">
+        select
+          b.product_name as productName,
+          a.bid_money as bidMoney,
+          a.bid_time as bidTime
+        from
+          b_bid_info a
+        left join
+          b_loan_info b
+        on
+          a.loan_id = b.id
+        where
+          a.uid = #{uid}
+        order by
+          a.bid_time desc
+        limit #{currentPage},#{pageSize}
+    </select>
+
+    <!--根据产品标识获取产品的所有投资记录-->
+    <select id="selectAllBidInfoListByLoanId" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List"/>
+        from
+          b_bid_info
+        where
+          loan_id = #{loanId}
+    </select>
+
 </mapper>

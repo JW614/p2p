@@ -1,71 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bjpowernode.p2p.mapper.user.FinanceAccountMapper">
-  <resultMap id="BaseResultMap" type="com.bjpowernode.p2p.model.user.FinanceAccount">
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="uid" jdbcType="INTEGER" property="uid" />
-    <result column="available_money" jdbcType="DOUBLE" property="availableMoney" />
-  </resultMap>
-  <sql id="Base_Column_List">
+    <resultMap id="BaseResultMap" type="com.bjpowernode.p2p.model.user.FinanceAccount">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="available_money" jdbcType="DOUBLE" property="availableMoney"/>
+    </resultMap>
+    <sql id="Base_Column_List">
     id, uid, available_money
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from u_finance_account
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from u_finance_account
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from u_finance_account
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
+    <insert id="insert" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
     insert into u_finance_account (id, uid, available_money
       )
     values (#{id,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{availableMoney,jdbcType=DOUBLE}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
-    insert into u_finance_account
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="uid != null">
-        uid,
-      </if>
-      <if test="availableMoney != null">
-        available_money,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="uid != null">
-        #{uid,jdbcType=INTEGER},
-      </if>
-      <if test="availableMoney != null">
-        #{availableMoney,jdbcType=DOUBLE},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
-    update u_finance_account
-    <set>
-      <if test="uid != null">
-        uid = #{uid,jdbcType=INTEGER},
-      </if>
-      <if test="availableMoney != null">
-        available_money = #{availableMoney,jdbcType=DOUBLE},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
+    <insert id="insertSelective" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
+        insert into u_finance_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="uid != null">
+                uid,
+            </if>
+            <if test="availableMoney != null">
+                available_money,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="uid != null">
+                #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="availableMoney != null">
+                #{availableMoney,jdbcType=DOUBLE},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
+        update u_finance_account
+        <set>
+            <if test="uid != null">
+                uid = #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="availableMoney != null">
+                available_money = #{availableMoney,jdbcType=DOUBLE},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bjpowernode.p2p.model.user.FinanceAccount">
     update u_finance_account
     set uid = #{uid,jdbcType=INTEGER},
       available_money = #{availableMoney,jdbcType=DOUBLE}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+    <!--根据用户标识获取帐户信息-->
+    <select id="selectFinanceAccountByUid" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List"/>
+        from
+          u_finance_account
+        where
+          uid = #{uid}
+    </select>
+
+    <!--更新帐户可用余额（用户投资）-->
+    <update id="updateFinanceAccountByBid">
+        update
+          u_finance_account
+        set
+          available_money = available_money - #{bidMoney}
+        where
+          uid = #{uid} and (available_money - #{bidMoney}) >= 0
+    </update>
+
+    <!--更新帐户可用余额（收益返还）-->
+    <update id="updateFinanceAccountByIncomeBack">
+        update
+          u_finance_account
+        set
+          available_money = available_money + #{bidMoney} + #{incomeMoney}
+        where
+          uid = #{uid}
+    </update>
+
+    <!--更新帐户可用余额（用户充值）-->
+    <update id="updateFinanceAccountByRecharge">
+        update
+          u_finance_account
+        set
+          available_money = available_money + #{rechargeMoney}
+        where
+          uid = #{uid}
+    </update>
+
 </mapper>

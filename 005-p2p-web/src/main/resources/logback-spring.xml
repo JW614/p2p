@@ -31,7 +31,7 @@ true -->
     <appender name="FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--<File>/home/log/stdout.log</File>-->
-        <File>D:/log/p2p/p2p-web.log</File>
+        <File>/Users/jiangwen/log/p2p/p2p-web.log</File>
         <encoder>
             <pattern>%date [%-5p] %thread %logger{60} [%file : %line] %msg%n
             </pattern>
@@ -41,7 +41,7 @@ true -->
             <!-- 添加.gz 历史日志会启用压缩 大大缩小日志文件所占空间 -->
             <!--<fileNamePattern>/home/log/stdout.log.%d{yyyy-MM-dd}.log</fileNam
             ePattern>-->
-            <fileNamePattern>D:/log/p2p/p2p-web.log.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/Users/jiangwen/log/p2p/p2p-web.log.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory><!-- 保留 30 天日志 -->
         </rollingPolicy>
     </appender>

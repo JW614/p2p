@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class LoanInfo implements Serializable {
+    private static final long serialVersionUID = 243149065929783265L;
     private Integer id;
 
     private String productName;

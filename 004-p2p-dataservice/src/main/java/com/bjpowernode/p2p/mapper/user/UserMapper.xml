@@ -154,4 +154,14 @@
           phone = #{phone}
     </select>
 
+    <!--根据手机号码和登录密码查询用户信息-->
+    <select id="selectUserByPhoneAndLoginPassword" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List"/>
+        from
+          u_user
+        where
+          phone = #{phone} and login_password = #{loginPassword}
+    </select>
+
 </mapper>

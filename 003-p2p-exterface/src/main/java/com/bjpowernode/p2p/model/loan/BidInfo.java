@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class BidInfo implements Serializable {
+
+
+    private static final long serialVersionUID = -8932932968923774919L;
     private Integer id;
 
     private Integer loanId;

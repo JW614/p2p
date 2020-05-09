@@ -5,8 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.bjpowernode.p2p.common.constant.Constants;
 import com.bjpowernode.p2p.common.util.HttpClientUtils;
 import com.bjpowernode.p2p.common.util.Result;
+import com.bjpowernode.p2p.model.loan.RechargeRecord;
+import com.bjpowernode.p2p.model.user.FinanceAccount;
 import com.bjpowernode.p2p.model.user.User;
-import com.bjpowernode.p2p.service.loan.RedisService;
+import com.bjpowernode.p2p.model.vo.BidLoanVO;
+import com.bjpowernode.p2p.model.vo.IncomeRecordExtLoan;
+import com.bjpowernode.p2p.service.loan.*;
 import com.bjpowernode.p2p.service.user.UserService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,10 +18,12 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,11 +37,26 @@ import java.util.Map;
 @Controller
 public class UserController {
 
-    @Reference(interfaceClass = UserService.class,version = "1.0.0",check = false)
+    @Reference(interfaceClass = UserService.class, version = "1.0.0", check = false)
     private UserService userService;
 
-    @Reference(interfaceClass = RedisService.class,version = "1.0.0",check = false)
+    @Reference(interfaceClass = RedisService.class, version = "1.0.0", check = false)
     private RedisService redisService;
+
+    @Reference(interfaceClass = FinanceAccountService.class, version = "1.0.0", check = false)
+    private FinanceAccountService financeAccountService;
+
+    @Reference(interfaceClass = LoanInfoService.class, version = "1.0.0", check = false)
+    private LoanInfoService loanInfoService;
+
+    @Reference(interfaceClass = BidInfoService.class, version = "1.0.0", check = false)
+    private BidInfoService bidInfoService;
+
+    @Reference(interfaceClass = RechargeRecordService.class, version = "1.0.0", check = false)
+    private RechargeRecordService rechargeRecordService;
+
+    @Reference(interfaceClass = IncomeRecordService.class, version = "1.0.0", check = false)
+    private IncomeRecordService incomeRecordService;
 
     @RequestMapping(value = "/loan/page/register")
     public String pageRegister() {
@@ -48,21 +69,30 @@ public class UserController {
         return "realName";
     }
 
+    @RequestMapping(value = "/loan/page/login")
+    public String pageLogin(Model model,
+                            @RequestParam(value = "redirectUrl", required = false) String redirectUrl) {
+        model.addAttribute("redirectUrl", redirectUrl);
+        return "login";
+    }
+
 
     /**
      * 接口名称：验证手机号码是否重复
      * 接口地址：http://localhost:8080/p2p/loan/checkPhone
      * 请求方式：http POST
      * 请求参数如下：
+     *
      * @param phone String 必填项
-     * 响应参数：
-     *        成功 -> {"code":1,"success":true}
-     *        错误 -> {"code":-1,"message":"错误消息","success":false}
+     *              响应参数：
+     *              成功 -> {"code":1,"success":true}
+     *              错误 -> {"code":-1,"message":"错误消息","success":false}
      * @return
      */
     @PostMapping(value = "/loan/checkPhone")
-    public @ResponseBody Object checkPhone(@RequestParam (value = "phone",required = true) String phone) {
-        Map<String,Object> retMap = new HashMap<String, Object>();
+    public @ResponseBody
+    Object checkPhone(@RequestParam(value = "phone", required = true) String phone) {
+        Map<String, Object> retMap = new HashMap<String, Object>();
 
         //验证手机号码是否重复(手机号码) -> 返回：boolean|int|User|String|响应结果对象
         //根据手机号码查询用户信息(手机号码) -> 返回：User对象
@@ -71,23 +101,24 @@ public class UserController {
         //判断用户是否为空
         if (ObjectUtils.allNotNull(user)) {
             //不为空，说明该手机号码已被注册
-            retMap.put("code",-1);
-            retMap.put("message","该手机号码已被注册,请更换手机号码");
-            retMap.put("success",false);
+            retMap.put("code", -1);
+            retMap.put("message", "该手机号码已被注册,请更换手机号码");
+            retMap.put("success", false);
             return retMap;
         }
 
-        retMap.put("code",1);
-        retMap.put("success",true);
+        retMap.put("code", 1);
+        retMap.put("success", true);
         return retMap;
     }
 
     @PostMapping(value = "/loan/register")
-    public @ResponseBody Object register(HttpServletRequest request,
-                                         @RequestParam (value = "phone",required = true) String phone,
-                                         @RequestParam (value = "loginPassword",required = true) String loginPassword,
-                                         @RequestParam (value = "messageCode",required = true) String messageCode) {
-        Map<String,Object> retMap = new HashMap<String, Object>();
+    public @ResponseBody
+    Object register(HttpServletRequest request,
+                    @RequestParam(value = "phone", required = true) String phone,
+                    @RequestParam(value = "loginPassword", required = true) String loginPassword,
+                    @RequestParam(value = "messageCode", required = true) String messageCode) {
+        Map<String, Object> retMap = new HashMap<String, Object>();
 
         try {
 
@@ -100,10 +131,10 @@ public class UserController {
             }
 
             //用户注册【1.新增用户 2.开立帐户】(手机号码，密码)
-            User user = userService.register(phone,loginPassword);
+            User user = userService.register(phone, loginPassword);
 
             //将用户的信息存放到session中
-            request.getSession().setAttribute(Constants.SESSION_USER,user);
+            request.getSession().setAttribute(Constants.SESSION_USER, user);
         } catch (Exception e) {
             e.printStackTrace();
             /*retMap.put("code",-1);
@@ -122,24 +153,25 @@ public class UserController {
     }
 
     @GetMapping(value = "/loan/messageCode")
-    public @ResponseBody Result messageCode(HttpServletRequest request,
-                                            @RequestParam (value = "phone",required = true) String phone) {
+    public @ResponseBody
+    Result messageCode(HttpServletRequest request,
+                       @RequestParam(value = "phone", required = true) String phone) {
 
         String messageCode = "";
 
         try {
 
             //准备参数
-            Map<String,Object> paramMap = new HashMap<String, Object>();
-            paramMap.put("appkey","c412de014a0257a9e970f4a");
-            paramMap.put("mobile",phone);
+            Map<String, Object> paramMap = new HashMap<String, Object>();
+            paramMap.put("appkey", "c412de014a0257a9e970f4a");
+            paramMap.put("mobile", phone);
 
             //生成一个4位的随机数字
             messageCode = this.randomNumber(4);
 
             //编写短信验证码的正文
             String content = "【凯信通】您的验证码是：" + messageCode;
-            paramMap.put("content",content);
+            paramMap.put("content", content);
 
             //发送短信验证码，调用京东万象平台-106短信接口
             String jsonString = HttpClientUtils.doPost("https://way.jd.com/kaixintong/kaixintong", paramMap);
@@ -205,7 +237,7 @@ public class UserController {
             }
 
             //将生成的短信验证码存放到redis缓存中
-            redisService.put(phone,messageCode);
+            redisService.put(phone, messageCode);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -218,13 +250,13 @@ public class UserController {
 
     private String randomNumber(int count) {
 
-        String[] array = {"0","1","2","3","4","5","6","7","8","9"};
+        String[] array = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
         StringBuilder stringBuilder = new StringBuilder();
 
         for (int i = 0; i < count; i++) {
 
-            int index = (int) Math.round(Math.random()*9);
+            int index = (int) Math.round(Math.random() * 9);
 
             stringBuilder.append(array[index]);
 
@@ -234,13 +266,13 @@ public class UserController {
     }
 
 
-
     @PostMapping(value = "/loan/realName")
-    public @ResponseBody Result realName(HttpServletRequest request,
-                                         @RequestParam (value = "phone",required = true) String phone,
-                                         @RequestParam (value = "realName",required = true) String realName,
-                                         @RequestParam (value = "idCard",required = true) String idCard,
-                                         @RequestParam (value = "messageCode",required = true) String messageCode) {
+    public @ResponseBody
+    Result realName(HttpServletRequest request,
+                    @RequestParam(value = "phone", required = true) String phone,
+                    @RequestParam(value = "realName", required = true) String realName,
+                    @RequestParam(value = "idCard", required = true) String idCard,
+                    @RequestParam(value = "messageCode", required = true) String messageCode) {
         try {
 
             //从redis缓存中获取短信验证码
@@ -251,10 +283,10 @@ public class UserController {
                 return Result.error("请输入正确的短信验证码");
             }
 
-            Map<String,Object> paramMap = new HashMap<String, Object>();
-            paramMap.put("appkey","c499b58e49512de014a0257a9e970f4a");
-            paramMap.put("cardNo",idCard);
-            paramMap.put("realName",realName);
+            Map<String, Object> paramMap = new HashMap<String, Object>();
+            paramMap.put("appkey", "c499b58e49512de014a0257a9e970f4a");
+            paramMap.put("cardNo", idCard);
+            paramMap.put("realName", realName);
 
             //实名认证，调用京东万象平台-身份证二要素实名认证接口
             String jsonString = HttpClientUtils.doPost("https://way.jd.com/youhuoBeijing/test", paramMap);
@@ -311,7 +343,7 @@ public class UserController {
             //更新session中用户的信息
             sessionUser.setName(realName);
             sessionUser.setIdCard(idCard);
-            request.getSession().setAttribute(Constants.SESSION_USER,sessionUser);
+            request.getSession().setAttribute(Constants.SESSION_USER, sessionUser);
 
 
         } catch (Exception e) {
@@ -321,5 +353,121 @@ public class UserController {
 
 
         return Result.success();
+    }
+
+
+    @PostMapping(value = "/loan/myFinanceAccount")
+    public @ResponseBody
+    FinanceAccount myFinanceAccount(HttpServletRequest request) {
+
+        //从session中获取用户的信息
+        User sessionUser = (User) request.getSession().getAttribute(Constants.SESSION_USER);
+
+        //根据用户标识获取帐户信息
+        FinanceAccount financeAccount = financeAccountService.queryFinanceAccountByUid(sessionUser.getId());
+
+        return financeAccount;
+    }
+
+
+    @RequestMapping(value = "/loan/logout")
+    public String logout(HttpServletRequest request) {
+
+        //让session失效或者指定删除session中的值
+        request.getSession().invalidate();
+//        request.getSession().removeAttribute(Constants.SESSION_USER);
+
+//        return "index";
+        return "redirect:/index";
+//        return "redirect:/p2p/index";
+    }
+
+
+    @PostMapping(value = "/loan/login")
+    public @ResponseBody
+    Result login(HttpServletRequest request,
+                 @RequestParam(value = "phone", required = true) String phone,
+                 @RequestParam(value = "loginPassword", required = true) String loginPassword,
+                 @RequestParam(value = "messageCode", required = true) String messageCode) {
+        try {
+
+            //从redis中获取短信验证码
+            String redisMessageCode = redisService.get(phone);
+
+            //进行验证码可检验
+            if (!StringUtils.equals(messageCode, redisMessageCode)) {
+                return Result.error("请输入正确的短信验证码");
+            }
+
+
+            //用户登录[1.根据手机号和密码查询用户信息 2.更新最近登录时间] -> User
+            User user = userService.login(phone, loginPassword);
+
+            //判断用户是否为空
+            if (!ObjectUtils.allNotNull(user)) {
+                return Result.error("用户名或密码有误");
+            }
+
+            //将用户的信息存放到session中
+            request.getSession().setAttribute(Constants.SESSION_USER, user);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("用户名或密码有误");
+        }
+
+
+        return Result.success();
+    }
+
+    @RequestMapping(value = "/loan/loadStat")
+    public @ResponseBody
+    Object loadStat() {
+
+        Map<String, Object> retMap = new HashMap<String, Object>();
+
+        Double historyAverageRate = loanInfoService.queryHistoryAverageRate();
+        Long allUserCount = userService.queryAllUserCount();
+        Double allBidMoney = bidInfoService.queryAllBidMoney();
+
+
+        retMap.put("historyAverageRate", historyAverageRate);
+        retMap.put("allUserCount", allUserCount);
+        retMap.put("allBidMoney", allBidMoney);
+
+        return retMap;
+    }
+
+    @RequestMapping(value = "/loan/myCenter")
+    public String myCenter(HttpServletRequest request, Model model) {
+
+        //从session中获取用户的信息
+        User sessionUser = (User) request.getSession().getAttribute(Constants.SESSION_USER);
+
+        //根据用户标识获取帐户信息
+        FinanceAccount financeAccount = financeAccountService.queryFinanceAccountByUid(sessionUser.getId());
+
+        //将以下查看看作是一个分页
+        //准备查询参数
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("uid", sessionUser.getId());
+        paramMap.put("currentPage", 0);
+        paramMap.put("pageSize", 5);
+
+        //根据用户标识获取最近投资记录
+        List<BidLoanVO> bidLoanVOList = bidInfoService.queryRecentlyBidInfoListByUid(paramMap);
+
+        //根据用户标识获取最近充值记录
+        List<RechargeRecord> rechargeRecordList = rechargeRecordService.queryRecentlyRechargeRecordListByUid(paramMap);
+
+        //根据用户标识获取最近收益记录
+        List<IncomeRecordExtLoan> incomeRecordExtLoanList = incomeRecordService.queryRecentlyIncomeRecordListByUid(paramMap);
+
+        model.addAttribute("financeAccount", financeAccount);
+        model.addAttribute("bidLoanVOList", bidLoanVOList);
+        model.addAttribute("rechargeRecordList", rechargeRecordList);
+        model.addAttribute("incomeRecordExtLoanList", incomeRecordExtLoanList);
+
+        return "myCenter";
     }
 }

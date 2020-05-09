@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class IncomeRecord implements Serializable {
+    private static final long serialVersionUID = -2022009375318297665L;
     private Integer id;
 
     private Integer uid;

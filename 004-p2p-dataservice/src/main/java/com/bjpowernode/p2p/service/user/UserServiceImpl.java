@@ -135,4 +135,25 @@ public class UserServiceImpl implements UserService {
     public int modifyUserById(User user) {
         return userMapper.updateByPrimaryKeySelective(user);
     }
+
+    @Override
+    public User login(String phone, String loginPassword) {
+
+        //根据手机号和密码查询用户的信息
+        User user = new User();
+        user.setPhone(phone);
+        user.setLoginPassword(loginPassword);
+        User userDetail = userMapper.selectUserByPhoneAndLoginPassword(user);
+
+        //判断用户是否为空
+        if (ObjectUtils.allNotNull(userDetail)) {
+            //更新最近登录时间
+            User updateUser = new User();
+            updateUser.setId(userDetail.getId());
+            updateUser.setLastLoginTime(new Date());
+            userMapper.updateByPrimaryKeySelective(updateUser);
+        }
+
+        return userDetail;
+    }
 }

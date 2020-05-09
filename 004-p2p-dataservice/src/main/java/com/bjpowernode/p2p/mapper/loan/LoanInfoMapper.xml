@@ -247,5 +247,26 @@
         </where>
     </select>
 
+    <!--更新产品剩余可投金额-->
+    <update id="updateLeftProductMoney">
+        update
+          b_loan_info
+        set
+          left_product_money = left_product_money - #{bidMoney},
+          version = version+1
+        where
+          id = #{loanId} and version = #{version} and (left_product_money - #{bidMoney}) >= 0
+    </update>
+
+    <!--根据产品状态获取产品信息列表-->
+    <select id="selectLoanInfoListByProductStatus" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List"/>
+        from
+          b_loan_info
+        where
+          product_status = #{productStatus}
+    </select>
+
 
 </mapper>

@@ -39,4 +39,12 @@ public interface UserService {
      * @return
      */
     int modifyUserById(User user);
+
+    /**
+     * 用户登录
+     * @param phone
+     * @param loginPassword
+     * @return
+     */
+    User login(String phone, String loginPassword);
 }
