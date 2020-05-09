@@ -27,7 +27,7 @@
         <dubbo-spring-boot-starter-version>2.0.0</dubbo-spring-boot-starter-version>
         <zkclient.version>0.10</zkclient.version>
         <fastjson.version>1.2.36</fastjson.version>
-        <dom4j.version>2.1.0</dom4j.version>
+        <dom4j.version>2.1.1</dom4j.version>
         <alipay-sdk-java-version>4.9.124.ALL</alipay-sdk-java-version>
         <wxpay-sdk-version>0.0.3</wxpay-sdk-version>
         <google.zxing.core.version>3.0.0</google.zxing.core.version>
